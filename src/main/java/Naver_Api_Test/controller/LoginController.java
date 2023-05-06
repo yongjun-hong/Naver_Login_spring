@@ -5,8 +5,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpSession;
 
 import Naver_Api_Test.config.NaverLoginBO;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,19 +52,40 @@ public class LoginController {
         return "login";
     }
 
-    //네이버 로그인 성공시 callback호출 메소드
-    @RequestMapping(value = "/callback", method = { RequestMethod.GET, RequestMethod.POST })
-    public String callback(Model model, @RequestParam String code, @RequestParam String state, HttpSession session)
-            throws IOException {
-        log.info("callback");
-        OAuth2AccessToken oauthToken;
-        oauthToken = naverLoginBO.getAccessToken(session, code, state);
-        //로그인 사용자 정보를 읽어온다.
-        apiResult = naverLoginBO.getUserProfile(oauthToken);
-        log.info(apiResult);
-        model.addAttribute("result", apiResult);
+//    네이버 로그인 성공시 callback호출 메소드
+//    @RequestMapping(value = "/callback", method = { RequestMethod.GET, RequestMethod.POST })
+//    public String callback(Model model, @RequestParam String code, @RequestParam String state, HttpSession session)
+//            throws IOException {
+//        log.info("callback");
+//        OAuth2AccessToken oauthToken;
+//        oauthToken = naverLoginBO.getAccessToken(session, code, state);
+//        //로그인 사용자 정보를 읽어온다.
+//        apiResult = naverLoginBO.getUserProfile(oauthToken);
+//        log.info(apiResult);
+//        model.addAttribute("result", apiResult);
+//
+//        /* 네이버 로그인 성공 페이지 View 호출 */
+//        return "naverSuccess";
+//    }
 
-        /* 네이버 로그인 성공 페이지 View 호출 */
-        return "naverSuccess";
+
+    @RequestMapping(value = "/callback", method = { RequestMethod.GET, RequestMethod.POST })
+    public ResponseEntity<String> callback(@RequestParam String code, @RequestParam String state, HttpSession session) {
+        OAuth2AccessToken oauthToken;
+        try {
+            oauthToken = naverLoginBO.getAccessToken(session, code, state);
+            apiResult = naverLoginBO.getUserProfile(oauthToken);
+
+            JSONObject json = new JSONObject(apiResult);
+            String name = json.getJSONObject("response").getString("name");
+            String email = json.getJSONObject("response").getString("email");
+            String id = json.getJSONObject("response").getString("id");
+            log.info(name);
+            log.info(email);
+            return ResponseEntity.ok("Name: " + name + ", Email: " + email + ", id: " + id);
+        } catch (IOException e) {
+            // handle exception
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get user profile.");
+        }
     }
 }
