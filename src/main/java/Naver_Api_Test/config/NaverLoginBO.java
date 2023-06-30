@@ -61,6 +61,23 @@ public class NaverLoginBO {
         return null;
     }
 
+    public OAuth2AccessToken refreshAccessToken(HttpSession session, String refreshToken) throws IOException {
+        // RefreshToken을 사용하여 AccessToken을 갱신합니다.
+        OAuth20Service oAuth20Service = new ServiceBuilder()
+                .apiKey(CLIENT_ID)
+                .apiSecret(CLIENT_SECRET)
+                .callback(REDIRECT_URI)
+                .build(NaverOAuthApi.instance());
+        OAuth2AccessToken accessToken = oAuth20Service.refreshAccessToken(refreshToken);
+
+        // AccessToken 갱신 성공 시 새로운 AccessToken을 반환합니다.
+        if (accessToken != null) {
+            return accessToken;
+        }
+
+        return null;
+    }
+
     private String generateRandomString() {
         return UUID.randomUUID().toString();
     }
