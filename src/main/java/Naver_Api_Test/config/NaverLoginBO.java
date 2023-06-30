@@ -6,6 +6,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpSession;
@@ -13,12 +14,20 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class NaverLoginBO {
-    private final static String CLIENT_ID = "cCLqnwAyd4vanVl6FvDJ";
-    private final static String CLIENT_SECRET = "OibZKGo30p";
-    private final static String REDIRECT_URI = "http://localhost:8080/callback";
-    private final static String SESSION_STATE = "oauth_state";
-    /* 프로필 조회 API URL */
-    private final static String PROFILE_API_URL = "https://openapi.naver.com/v1/nid/me";
+    @Value("${spring.client.id}")
+    private String CLIENT_ID;
+
+    @Value("${spring.client.secret}")
+    private String CLIENT_SECRET;
+
+    @Value("${spring.client.redirect-uri}")
+    private String REDIRECT_URI;
+
+    @Value("${spring.client.session-state}")
+    private String SESSION_STATE;
+
+    @Value("${spring.profile-api-url}")
+    private String PROFILE_API_URL;
 
     public String getAuthorizationUrl(HttpSession session) {
         //세션 유효성 검증을 위하여 난수를 생성

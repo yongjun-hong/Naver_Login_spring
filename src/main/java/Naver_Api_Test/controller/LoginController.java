@@ -5,8 +5,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpSession;
 
 import Naver_Api_Test.config.NaverLoginBO;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,22 +49,6 @@ public class LoginController {
         /* 생성한 인증 URL을 View로 전달 */
         return "login";
     }
-
-//    네이버 로그인 성공시 callback호출 메소드
-//    @RequestMapping(value = "/callback", method = { RequestMethod.GET, RequestMethod.POST })
-//    public String callback(Model model, @RequestParam String code, @RequestParam String state, HttpSession session)
-//            throws IOException {
-//        log.info("callback");
-//        OAuth2AccessToken oauthToken;
-//        oauthToken = naverLoginBO.getAccessToken(session, code, state);
-//        //로그인 사용자 정보를 읽어온다.
-//        apiResult = naverLoginBO.getUserProfile(oauthToken);
-//        log.info(apiResult);
-//        model.addAttribute("result", apiResult);
-//
-//        /* 네이버 로그인 성공 페이지 View 호출 */
-//        return "naverSuccess";
-//    }
 
 
     @RequestMapping(value = "/callback", method = { RequestMethod.GET, RequestMethod.POST })

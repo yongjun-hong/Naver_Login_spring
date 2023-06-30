@@ -1,0 +1,11 @@
+spring:
+  mvc:
+    view:
+      prefix: "/WEB-INF/views/"
+      suffix: ".jsp"
+  client:
+    id: cCLqnwAyd4vanVl6FvDJ
+    secret: OibZKGo30p
+    redirect-uri: http://localhost:8080/callback
+    session-state: oauth_state
+  profile-api-url: https://openapi.naver.com/v1/nid/me
