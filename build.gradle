@@ -32,7 +32,13 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.9'
 	implementation 'org.json:json:20211205'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
 }
 
 tasks.named('test') {

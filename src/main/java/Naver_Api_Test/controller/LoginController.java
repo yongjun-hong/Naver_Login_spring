@@ -4,7 +4,10 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpSession;
 
+import Naver_Api_Test.Dto.UserDto;
 import Naver_Api_Test.config.NaverLoginBO;
+import Naver_Api_Test.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,10 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
  */
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class LoginController {
+
+    private final UserService userService;
 
     /* NaverLoginBO */
     private NaverLoginBO naverLoginBO;
@@ -41,11 +47,8 @@ public class LoginController {
         /* 네이버아이디로 인증 URL을 생성하기 위하여 naverLoginBO클래스의 getAuthorizationUrl메소드 호출 */
         String naverAuthUrl = naverLoginBO.getAuthorizationUrl(session);
         log.info(naverAuthUrl);
-        System.out.println("네이버:" + naverAuthUrl);
-
         //네이버
         model.addAttribute("url", naverAuthUrl);
-
         /* 생성한 인증 URL을 View로 전달 */
         return "login";
     }
@@ -62,8 +65,9 @@ public class LoginController {
             String name = json.getJSONObject("response").getString("name");
             String email = json.getJSONObject("response").getString("email");
             String id = json.getJSONObject("response").getString("id");
-            log.info(name);
-            log.info(email);
+
+            UserDto userDto = new UserDto(name, email);
+            userService.saveUser(userDto);
             return ResponseEntity.ok("Name: " + name + ", Email: " + email + ", id: " + id);
         } catch (IOException e) {
             // handle exception
