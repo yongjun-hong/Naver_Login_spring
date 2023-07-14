@@ -39,6 +39,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 }
 
 tasks.named('test') {

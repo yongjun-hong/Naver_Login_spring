@@ -1,5 +1,6 @@
 package Naver_Api_Test.Dto;
 
+import Naver_Api_Test.domain.entity.LoginProvider;
 import Naver_Api_Test.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,12 +13,14 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDto {
     private String name;
-    private String Email;
+    private String email;
+    private LoginProvider loginProvider;
 
     public User to_Entity() {
         return User.builder()
                 .name(name)
-                .Email(Email)
+                .email(email)
+                .loginProvider(loginProvider)
                 .build();
     }
 }

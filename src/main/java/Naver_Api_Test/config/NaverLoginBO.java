@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.UUID;
 
 public class NaverLoginBO {
@@ -29,6 +31,7 @@ public class NaverLoginBO {
     @Value("${spring.profile-api-url}")
     private String PROFILE_API_URL;
 
+    private NaverOAuthApi naverOAuthApi;
     public String getAuthorizationUrl(HttpSession session) {
         //세션 유효성 검증을 위하여 난수를 생성
         String state = generateRandomString();
@@ -61,7 +64,7 @@ public class NaverLoginBO {
         return null;
     }
 
-    public OAuth2AccessToken refreshAccessToken(HttpSession session, String refreshToken) throws IOException {
+    public OAuth2AccessToken refreshAccessToken(String refreshToken) throws IOException {
         // RefreshToken을 사용하여 AccessToken을 갱신합니다.
         OAuth20Service oAuth20Service = new ServiceBuilder()
                 .apiKey(CLIENT_ID)
@@ -99,5 +102,31 @@ public class NaverLoginBO {
         oAuth20Service.signRequest(oAuth2AccessToken, request);
         Response response = request.send();
         return response.getBody();
+    }
+
+    public String removeAccessToken(String accessToken) {
+        String removeTokenApi = naverOAuthApi.deleteAccessToken();
+        String apiURL = removeTokenApi + CLIENT_ID +
+                "&client_secret=" + CLIENT_SECRET + "&access_token=" + accessToken.replaceAll("'", "") + "&service_provider=NAVER";
+        return apiURL;
+    }
+
+    public boolean validateAccessToken(String accessToken) {
+        try {
+            // API 호출을 통해 AccessToken의 유효성을 검사합니다.
+            // 네이버 API의 사용자 프로필 엔드포인트를 호출하여 응답 코드를 확인합니다.
+            URL url = new URL("https://openapi.naver.com/v1/nid/me");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+            int responseCode = connection.getResponseCode();
+            // 200 OK 응답 코드인 경우에는 AccessToken이 유효합니다.
+            return responseCode == 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 예외 발생 시 AccessToken은 유효하지 않은 것으로 처리합니다.
+            return false;
+        }
     }
 }

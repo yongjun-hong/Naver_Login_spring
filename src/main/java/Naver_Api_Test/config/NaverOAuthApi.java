@@ -24,4 +24,9 @@ public class NaverOAuthApi extends DefaultApi20 {
     protected String getAuthorizationBaseUrl() {
         return "https://nid.naver.com/oauth2.0/authorize";
     }
+
+
+    public String deleteAccessToken() {
+        return "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=";
+    }
 }

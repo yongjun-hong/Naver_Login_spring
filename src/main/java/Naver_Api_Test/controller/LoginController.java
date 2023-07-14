@@ -2,11 +2,13 @@ package Naver_Api_Test.controller;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import Naver_Api_Test.Dto.UserDto;
 import Naver_Api_Test.config.NaverLoginBO;
-import Naver_Api_Test.service.NaverApiService;
+import Naver_Api_Test.domain.entity.LoginProvider;
+import Naver_Api_Test.domain.entity.NaverTokens;
 import Naver_Api_Test.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
@@ -32,9 +31,6 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 public class LoginController {
 
     private final UserService userService;
-    private final NaverApiService naverApiService;
-
-    /* NaverLoginBO */
     private NaverLoginBO naverLoginBO;
     private String apiResult = null;
 
@@ -72,22 +68,10 @@ public class LoginController {
             String AccessToken = oauthToken.getAccessToken();
             String RefreshToken = oauthToken.getRefreshToken();
 
-            // AccessToken의 유효성을 검사합니다.
-            Boolean validateToken = naverApiService.validateAccessToken(AccessToken);
-            // RefreshToken의 유효성을 검사합니다.
-            Boolean validateRefreshToken = naverApiService.validateAccessToken(RefreshToken);
-//            log.info(validateToken.toString());
-//            log.info(validateRefreshToken.toString());
-
-
-            UserDto userDto = new UserDto(name, email);
+            log.info(RefreshToken);
+            UserDto userDto = new UserDto(name, email, LoginProvider.NAVER);
             userService.saveUser(userDto);
-/**
- * 밑의 코드 해결하기
- */
-//            OAuth2AccessToken newRefreshToken = naverLoginBO.refreshAccessToken(session,RefreshToken);
-//            String new_token = newRefreshToken.getAccessToken();
-//            log.info(new_token);
+
 
             return ResponseEntity.ok("Name: " + name + ", Email: " + email + ", id: " + id);
         } catch (IOException e) {
@@ -97,9 +81,9 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
-    public ResponseEntity<String> refresh(@RequestParam String refreshToken, HttpSession session) {
+    public ResponseEntity<String> refresh(@RequestParam String refreshToken) {
         try {
-            OAuth2AccessToken newAccessToken = naverLoginBO.refreshAccessToken(session, refreshToken);
+            OAuth2AccessToken newAccessToken = naverLoginBO.refreshAccessToken(refreshToken);
             if (newAccessToken != null) {
                 String newAccessTokenValue = newAccessToken.getAccessToken();
 
@@ -116,4 +100,14 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to refresh access token.");
         }
     }
+    @ResponseBody
+    @GetMapping("/remove") //token = access_token임
+    public String remove(@RequestParam String token, HttpSession session, HttpServletRequest request) {
+
+        String deleteURL = naverLoginBO.removeAccessToken(token);
+        session.invalidate();
+
+        return "deleteURL";
+    }
+
 }
